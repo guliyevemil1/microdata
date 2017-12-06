@@ -71,6 +71,21 @@ func TestParseItemRef(t *testing.T) {
 	}
 }
 
+func TestParseRecursiveItemRef(t *testing.T) {
+	html := `<div itemscope>
+  <div id="a" itemprop="a" itemscope itemref="b"></div>
+  <div id="b" itemprop="b" itemscope itemref="a"></div>
+</div>`
+
+	r := strings.NewReader(html)
+	u, _ := url.Parse("http://example.com")
+
+	_, err := ParseHTML(r, "utf-8", u)
+	if err != ErrItemrefLoop {
+		t.Errorf("Expected itemref loop error but did not get one")
+	}
+}
+
 func TestParseItemProp(t *testing.T) {
 	html := `
 		<div itemscope itemtype="http://example.com/Person">
